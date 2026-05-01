@@ -1,35 +1,25 @@
-module ff_reference #(
-  parameter WIDTH = 4
-) (
-  input clk,
-  input rst,
-  input logic [WIDTH-1:0] data_i,
-  output logic [WIDTH-1:0] data_o
+module muxes (
+  input a_i,
+  input b_i,
+  input c_i,
+  input d_i,
+  input logic [1:0] sel4_i,
+  output logic y0_o,
+  output logic y1_o
 );
 
-logic [WIDTH-1:0] stage1_d, stage1_q;
-logic [WIDTH-1:0] stage2_d, stage2_q;
-logic [WIDTH-1:0] stage3_d, stage3_q;
+  // 2-input mux
+  assign y0_o = (a_i ^ b_i) ? d_i : c_i;
 
-assign data_o = stage3_q;
-
-always_comb begin : data_set
-  stage1_d = data_i;
-  stage2_d = stage1_q;
-  stage3_d = stage2_q;
-end
-
-// async reset
-always_ff @(posedge clk or posedge rst) begin : data_ff
-  if (rst) begin
-    stage1_q <= '0;
-    stage2_q <= '0;
-    stage3_q <= '0;
-  end else begin
-    stage1_q <= stage1_d;
-    stage2_q <= stage2_d;
-    stage3_q <= stage3_d;
+  // 4-input mux
+  always_comb begin
+    case (sel4_i)
+      2'b00: y1_o = 1'b0;
+      2'b01: y1_o = c_i;
+      2'b10: y1_o = 1'b0;
+      2'b11: y1_o = d_i;
+      default: y1_o = 1'b0;
+    endcase
   end
-end
 
 endmodule
